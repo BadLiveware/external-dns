@@ -181,6 +181,10 @@ func (c *Controller) RunOnce(ctx context.Context) error {
 		deprecatedSourceErrors.Inc()
 		return err
 	}
+	log.WithFields(log.Fields{
+		"endpoints": unfilteredEndpoints,
+	}).Debugf("Endpoints found during run")
+
 	endpoints := filterRecordsWithoutTarget(unfilteredEndpoints)
 	/* endpoints := unfilteredEndpoints */
 
