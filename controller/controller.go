@@ -175,12 +175,15 @@ func (c *Controller) RunOnce(ctx context.Context) error {
 	registryARecords.Set(float64(len(regARecords)))
 	ctx = context.WithValue(ctx, provider.RecordsContextKey, records)
 
-	endpoints, err := c.Source.Endpoints(ctx)
+	unfilteredEndpoints, err := c.Source.Endpoints(ctx)
 	if err != nil {
 		sourceErrorsTotal.Inc()
 		deprecatedSourceErrors.Inc()
 		return err
 	}
+	endpoints := filterRecordsWithoutTarget(unfilteredEndpoints)
+	/* endpoints := unfilteredEndpoints */
+
 	sourceEndpointsTotal.Set(float64(len(endpoints)))
 	srcARecords := filterARecords(endpoints)
 	sourceARecords.Set(float64(len(srcARecords)))
@@ -252,6 +255,18 @@ func fetchMatchingARecords(endpoints []*endpoint.Endpoint, registryRecords []*en
 		}
 	}
 	return cm
+}
+
+func filterRecordsWithoutTarget(endpoints []*endpoint.Endpoint) []*endpoint.Endpoint {
+	var records []*endpoint.Endpoint
+	for _, endPoint := range endpoints {
+		if len(endPoint.Targets) > 0 {
+			records = append(records, endPoint)
+		} else {
+			log.Debugf("Skipping record %s as it has no targets", endPoint)
+		}
+	}
+	return records
 }
 
 func filterARecords(endpoints []*endpoint.Endpoint) []string {
