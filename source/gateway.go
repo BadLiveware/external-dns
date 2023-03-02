@@ -354,8 +354,12 @@ func (c *gatewayRouteResolver) resolve(rt gatewayRoute) (map[string]endpoint.Tar
 					log.Debugf("Gateway %s/%s section %q does not match %s %s/%s hostname %q", namespace, ref.Name, section, c.src.rtKind, meta.Namespace, meta.Name, rtHost)
 					continue
 				}
-				for _, addr := range gw.gateway.Status.Addresses {
-					hostTargets[host] = append(hostTargets[host], addr.Value)
+				override := getTargetsFromTargetAnnotation(gw.gateway.Annotations)
+				hostTargets[host] = append(hostTargets[host], override...)
+				if override == nil {
+					for _, addr := range gw.gateway.Status.Addresses {
+						hostTargets[host] = append(hostTargets[host], addr.Value)
+					}
 				}
 				match = true
 			}
