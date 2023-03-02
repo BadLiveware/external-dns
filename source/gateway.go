@@ -296,6 +296,7 @@ func (c *gatewayRouteResolver) resolve(rt gatewayRoute) (map[string]endpoint.Tar
 
 	meta := rt.Metadata()
 	for _, rps := range rt.RouteStatus().Parents {
+		log.Debugf("Found parent %s/%s for %s %s/%s", *rps.ParentRef.Namespace, rps.ParentRef.Name, c.src.rtKind, meta.Namespace, meta.Name)
 		// Confirm the Parent is the standard Gateway kind.
 		ref := rps.ParentRef
 		group := strVal((*string)(ref.Group), gatewayGroup)
@@ -350,6 +351,7 @@ func (c *gatewayRouteResolver) resolve(rt gatewayRoute) (map[string]endpoint.Tar
 				}
 				host, ok := gwMatchingHost(gwHost, rtHost)
 				if !ok {
+					log.Debugf("Gateway %s/%s section %q does not match %s %s/%s hostname %q", namespace, ref.Name, section, c.src.rtKind, meta.Namespace, meta.Name, rtHost)
 					continue
 				}
 				for _, addr := range gw.gateway.Status.Addresses {

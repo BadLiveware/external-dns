@@ -19,6 +19,7 @@ package source
 import (
 	"context"
 
+	log "github.com/sirupsen/logrus"
 	"sigs.k8s.io/external-dns/endpoint"
 )
 
@@ -48,7 +49,10 @@ func (ms *targetFilterSource) Endpoints(ctx context.Context) ([]*endpoint.Endpoi
 
 		for _, t := range ep.Targets {
 			if ms.targetFilter.Match(t) {
+				log.Debugf("Target %s filtered in by %s", t, ms.targetFilter)
 				filteredTargets = append(filteredTargets, t)
+			} else {
+				log.Debugf("Target %s filtered out by %s", t, ms.targetFilter)
 			}
 		}
 

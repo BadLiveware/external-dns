@@ -17,6 +17,7 @@ limitations under the License.
 package endpoint
 
 import (
+	"fmt"
 	"net"
 	"strings"
 
@@ -35,6 +36,10 @@ type TargetNetFilter struct {
 	FilterNets []*net.IPNet
 	// excludeNets define what targets not to match
 	excludeNets []*net.IPNet
+}
+
+func (b TargetNetFilter) String() string {
+	return fmt.Sprintf("TargetNetFilter{FilterNets:%v, excludeNets:%v}", b.FilterNets, b.excludeNets)
 }
 
 // prepareTargetFilters provides consistent trimming for filters/exclude params
